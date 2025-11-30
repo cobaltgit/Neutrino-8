@@ -28,4 +28,21 @@ else
 	killall -9 wpa_supplicant # wpa_supplicant auto-starts and is killed by the stock MainUI depending on the wifi value in system.json
 fi
 
+chmod a+w /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
+chmod a+w /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq
+chmod a+w /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq
+
+echo conservative > /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
+echo 50 >/sys/devices/system/cpu/cpufreq/conservative/down_threshold
+echo 75 >/sys/devices/system/cpu/cpufreq/conservative/up_threshold
+echo 3 >/sys/devices/system/cpu/cpufreq/conservative/freq_step
+echo 1 >/sys/devices/system/cpu/cpufreq/conservative/sampling_down_factor
+echo 400000 >/sys/devices/system/cpu/cpufreq/conservative/sampling_rate
+echo 600000 > /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq
+echo 1536000 > /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq
+
+chmod a-w /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
+chmod a-w /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq
+chmod a-w /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq
+
 pico8_dyn -splore -root_path "$HOME" 
