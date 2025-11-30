@@ -1,0 +1,31 @@
+#!/bin/sh
+
+WIFI_STATUS="$(sed -n 's/.*wifi[^0-9]*\([0-9]\+\).*/\1/p' /mnt/UDISK/system.json)" # respect stock's WiFi setting
+
+export HOME="/mnt/SDCARD"
+export LD_LIBRARY_PATH="/mnt/SDCARD/trimui/lib:/usr/trimui/lib:/usr/lib:/lib:$LD_LIBRARY_PATH"
+export PATH="$HOME:/mnt/SDCARD/trimui/app:/usr/trimui/bin:/usr/bin:/bin:$PATH"
+
+if ! [ -f "$HOME/pico8.dat" ] || ! [ -f "$HOME/pico8_dyn" ]; then
+	display.elf -d 0 -b "/mnt/SDCARD/trimui/res/bg.png" -f "/mnt/SDCARD/trimui/res/font.ttf" "PICO-8 binaries not found! Please read the README" 
+fi
+
+keymon &
+
+if [ $WIFI_STATUS -eq 1 ]; then
+	# sometimes the rootfs may become read-only, and udhcpc fails to write to the resolv.conf and exits prematurely.
+	mount -o bind /mnt/SDCARD/trimui/etc/resolv.conf /etc/resolv.conf
+	while :; do
+		if wpa_cli -i wlan0 status 2>/dev/null | grep -q "^wpa_state=COMPLETED"; then
+			if ! pgrep udhcpc >/dev/null; then
+				udhcpc -i wlan0 # we have to manually start udhcpc
+			fi
+			break
+		fi
+		sleep 1
+	done &
+else
+	killall -9 wpa_supplicant # wpa_supplicant auto-starts and is killed by the stock MainUI depending on the wifi value in system.json
+fi
+
+pico8_dyn -splore -root_path "$HOME" 
