@@ -6,6 +6,10 @@ export HOME="/mnt/SDCARD"
 export LD_LIBRARY_PATH="/mnt/SDCARD/trimui/lib:/usr/trimui/lib:/usr/lib:/lib:$LD_LIBRARY_PATH"
 export PATH="$HOME:/mnt/SDCARD/trimui/app:/usr/trimui/bin:/usr/bin:/bin:$PATH"
 
+echo none > /sys/devices/platform/sunxi-led/leds/led1/trigger
+echo none > /sys/devices/platform/sunxi-led/leds/led2/trigger
+echo none > /sys/devices/platform/sunxi-led/leds/led3/trigger
+
 if ! [ -f "$HOME/pico8.dat" ] || ! [ -f "$HOME/pico8_dyn" ]; then
 	display.elf -d 0 -b "/mnt/SDCARD/trimui/res/bg.png" -f "/mnt/SDCARD/trimui/res/font.ttf" "PICO-8 binaries not found! Please read the README" 
 fi
@@ -45,4 +49,5 @@ chmod a-w /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
 chmod a-w /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq
 chmod a-w /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq
 
-pico8_dyn -splore -root_path "$HOME" 
+pico8_dyn -splore -root_path "$HOME"
+
